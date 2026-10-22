@@ -16,7 +16,7 @@ class ForgotPasswordScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,20 +52,19 @@ class ForgotPasswordScreen extends StatelessWidget {
                   child: const Text('Voltar para o login', style: TextStyle(color: AppColors.primaryPurple, fontSize: 13)),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 40),
               Center(
                 child: Container(
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryPurple.withValues(alpha:
-                    0.15),
+                    color: AppColors.primaryPurple.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.lock_reset, size: 42, color: AppColors.primaryPurple),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 24),
             ],
           ),
         ),

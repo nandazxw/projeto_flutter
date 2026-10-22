@@ -61,55 +61,66 @@ class _AutomacaoTrafegoScreenState extends State<AutomacaoTrafegoScreen> {
                       style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.4),
                     ),
                     const SizedBox(height: 20),
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: [
-                        _buildScheduleCard(provider, '18:45', '+45% retenção', 'Maior pico de audiência do seu nicho'),
-                        _buildScheduleCard(provider, '12:30', '+30% engajamento', 'Horário de intervalo do público-alvo'),
-                        _buildScheduleCard(provider, '21:15', '+25% engajamento', 'Pico de consumo noturno'),
-                      ],
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isMobile = constraints.maxWidth < 600;
+                        final cardWidth = isMobile ? double.infinity : (constraints.maxWidth - 32) / 3;
+
+                        return Wrap(
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: [
+                            SizedBox(width: cardWidth, child: _buildScheduleCard(provider, '18:45', '+45% retenção', 'Maior pico de audiência do seu nicho')),
+                            SizedBox(width: cardWidth, child: _buildScheduleCard(provider, '12:30', '+30% engajamento', 'Horário de intervalo do público-alvo')),
+                            SizedBox(width: cardWidth, child: _buildScheduleCard(provider, '21:15', '+25% engajamento', 'Pico de consumo noturno')),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFA855F7),
-                        minimumSize: Size.zero,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFA855F7),
+                          minimumSize: const Size(double.infinity, 50),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: provider.isScheduling
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Icon(Icons.schedule_send_rounded, color: Colors.white, size: 18),
+                        label: Text(
+                          provider.isScheduling
+                              ? 'Agendando no Railway...'
+                              : 'Agendar Publicação para ${provider.selectedScheduleTime}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: provider.isScheduling
+                            ? null
+                            : () async {
+                                final success = await provider.confirmarAgendamento();
+                                if (!context.mounted) return;
+                                setState(() {
+                                  _foiAgendado = true;
+                                  _horarioAgendado = provider.selectedScheduleTime;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(success
+                                        ? 'Publicação sincronizada com o backend para às ${provider.selectedScheduleTime}!'
+                                        : 'Agendado localmente para às ${provider.selectedScheduleTime}!'),
+                                    backgroundColor: const Color(0xFF10B981),
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              },
                       ),
-                      icon: provider.isScheduling
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Icon(Icons.schedule_send_rounded, color: Colors.white, size: 18),
-                      label: Text(
-                        provider.isScheduling
-                            ? 'Agendando no Railway...'
-                            : 'Agendar Publicação para ${provider.selectedScheduleTime}',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      onPressed: provider.isScheduling
-                          ? null
-                          : () async {
-                              final success = await provider.confirmarAgendamento();
-                              if (!context.mounted) return;
-                              setState(() {
-                                _foiAgendado = true;
-                                _horarioAgendado = provider.selectedScheduleTime;
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(success
-                                      ? 'Publicação sincronizada com o backend para às ${provider.selectedScheduleTime}!'
-                                      : 'Agendado localmente para às ${provider.selectedScheduleTime}!'),
-                                  backgroundColor: const Color(0xFF10B981),
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
-                            },
                     ),
 
                     // Mensagem de confirmação de agendamento com sucesso
@@ -183,7 +194,7 @@ class _AutomacaoTrafegoScreenState extends State<AutomacaoTrafegoScreen> {
     return GestureDetector(
       onTap: () => provider.selectSchedule(time),
       child: Container(
-        width: 220,
+        width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: const Color(0xFF090A10),

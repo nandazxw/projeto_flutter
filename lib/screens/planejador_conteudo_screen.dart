@@ -157,26 +157,25 @@ class _PlanejadorConteudoScreenState extends State<PlanejadorConteudoScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Cabeçalho Responsivo
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Ideias e Roteiros Criados',
-                                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Todos os roteiros formulados nas suas conversas com o bot aparecem aqui para acompanhamento.',
-                                  style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ),
-                          OutlinedButton.icon(
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isNarrow = constraints.maxWidth < 450;
+                          final infoColumn = Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Ideias e Roteiros Criados',
+                                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Todos os roteiros formulados nas suas conversas com o bot aparecem aqui para acompanhamento.',
+                                style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                              ),
+                            ],
+                          );
+
+                          final chatButton = OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
                               minimumSize: Size.zero,
                               side: const BorderSide(color: Color(0xFFA855F7)),
@@ -186,8 +185,28 @@ class _PlanejadorConteudoScreenState extends State<PlanejadorConteudoScreen> {
                             icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16, color: Color(0xFFA855F7)),
                             label: const Text('Ir ao Chat', style: TextStyle(color: Color(0xFFA855F7), fontSize: 13, fontWeight: FontWeight.bold)),
                             onPressed: () => provider.setCurrentNavIndex(1),
-                          ),
-                        ],
+                          );
+
+                          if (isNarrow) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                infoColumn,
+                                const SizedBox(height: 12),
+                                SizedBox(width: double.infinity, child: chatButton),
+                              ],
+                            );
+                          }
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(child: infoColumn),
+                              const SizedBox(width: 12),
+                              chatButton,
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 16),
 

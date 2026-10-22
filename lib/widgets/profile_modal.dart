@@ -113,15 +113,22 @@ class _ProfileModalState extends State<ProfileModal> {
               const SizedBox(height: 20),
               const Text('⚙️ Preferências de Produção com IA', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _buildPreferenceCard('Nicho de Atuação', provider.nicho, Icons.track_changes),
-                  _buildPreferenceCard('Plataforma Alvo', provider.plataforma, Icons.layers),
-                  _buildPreferenceCard('Tom de Voz Padrão', provider.tomDeVoz, Icons.record_voice_over),
-                  _buildPreferenceCard('Estratégia de Retenção', provider.estrategia, Icons.bolt),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 450;
+                  final cardWidth = isMobile ? double.infinity : (constraints.maxWidth - 12) / 2;
+
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      SizedBox(width: cardWidth, child: _buildPreferenceCard('Nicho de Atuação', provider.nicho, Icons.track_changes)),
+                      SizedBox(width: cardWidth, child: _buildPreferenceCard('Plataforma Alvo', provider.plataforma, Icons.layers)),
+                      SizedBox(width: cardWidth, child: _buildPreferenceCard('Tom de Voz Padrão', provider.tomDeVoz, Icons.record_voice_over)),
+                      SizedBox(width: cardWidth, child: _buildPreferenceCard('Estratégia de Retenção', provider.estrategia, Icons.bolt)),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 20),
               const Text('📈 Métricas do Perfil', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -185,7 +192,7 @@ class _ProfileModalState extends State<ProfileModal> {
 
   Widget _buildPreferenceCard(String label, String value, IconData icon) {
     return Container(
-      width: 220,
+      width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(color: const Color(0xFF090A10), borderRadius: BorderRadius.circular(8)),
       child: Column(

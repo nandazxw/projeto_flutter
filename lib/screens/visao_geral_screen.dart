@@ -79,14 +79,21 @@ class VisaoGeralScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // KPI Cards
-              Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: [
-                  _buildKpiCard('ALCANCE ESTIMADO', reachFormatted, reachGrowthTag, reachDesc, Icons.people_outline),
-                  _buildKpiCard('ENGAJAMENTO MÉDIO', engFormatted, engGrowth, engDesc, Icons.thumb_up_alt_outlined),
-                  _buildKpiCard('SAÚDE ORGÂNICA', healthFormatted, healthPoints, healthDesc, Icons.favorite_border),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 600;
+                  final cardWidth = isMobile ? double.infinity : (constraints.maxWidth > 900 ? (constraints.maxWidth - 32) / 3 : (constraints.maxWidth - 16) / 2);
+
+                  return Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: [
+                      SizedBox(width: cardWidth, child: _buildKpiCard('ALCANCE ESTIMADO', reachFormatted, reachGrowthTag, reachDesc, Icons.people_outline)),
+                      SizedBox(width: cardWidth, child: _buildKpiCard('ENGAJAMENTO MÉDIO', engFormatted, engGrowth, engDesc, Icons.thumb_up_alt_outlined)),
+                      SizedBox(width: cardWidth, child: _buildKpiCard('SAÚDE ORGÂNICA', healthFormatted, healthPoints, healthDesc, Icons.favorite_border)),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 24),
 
@@ -129,28 +136,42 @@ class VisaoGeralScreen extends StatelessWidget {
               // Ações Rápidas Dinâmicas
               const Text('Ações Rápidas Recomendadas', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
               const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildActionButton(
-                      context,
-                      title: 'Pesquisar Trends',
-                      subtitle: 'Buscar novidades na web',
-                      icon: Icons.trending_up,
-                      onTap: () => provider.setCurrentNavIndex(2),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: _buildActionButton(
-                      context,
-                      title: 'Chat com a IA',
-                      subtitle: 'Criar ganchos e roteiros',
-                      icon: Icons.chat_bubble_outline_rounded,
-                      onTap: () => provider.setCurrentNavIndex(1),
-                    ),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 600;
+                  final btn1 = _buildActionButton(
+                    context,
+                    title: 'Pesquisar Trends',
+                    subtitle: 'Buscar novidades na web',
+                    icon: Icons.trending_up,
+                    onTap: () => provider.setCurrentNavIndex(2),
+                  );
+                  final btn2 = _buildActionButton(
+                    context,
+                    title: 'Chat com a IA',
+                    subtitle: 'Criar ganchos e roteiros',
+                    icon: Icons.chat_bubble_outline_rounded,
+                    onTap: () => provider.setCurrentNavIndex(1),
+                  );
+
+                  if (isMobile) {
+                    return Column(
+                      children: [
+                        btn1,
+                        const SizedBox(height: 12),
+                        btn2,
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(child: btn1),
+                      const SizedBox(width: 14),
+                      Expanded(child: btn2),
+                    ],
+                  );
+                },
               ),
             ],
           ),
@@ -161,7 +182,7 @@ class VisaoGeralScreen extends StatelessWidget {
 
   Widget _buildKpiCard(String title, String value, String tag, String desc, IconData icon) {
     return Container(
-      width: 280,
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFF11131F),

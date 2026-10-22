@@ -15,9 +15,10 @@ class AnaliseIaScreen extends StatelessWidget {
     final healthScore = provider.calculatedHealthScore;
 
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -59,27 +60,43 @@ class AnaliseIaScreen extends StatelessWidget {
                     style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.4),
                   ),
                   const SizedBox(height: 20),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: [
-                      _buildMetricBox(
-                        'TAXA DE ENGAJAMENTO DINÂMICA',
-                        '${engRate.toStringAsFixed(1)}%',
-                        'Calculada diretamente com base na sua densidade de interação e trends ativas',
-                        isHighlight: true,
-                      ),
-                      _buildMetricBox(
-                        'ALCANCE POTENCIAL ESTIMADO',
-                        totalReach >= 1000 ? '${(totalReach / 1000).toStringAsFixed(1)}K' : '$totalReach',
-                        'Projeção de visualizações orgânicas para o nicho "${provider.nicho}"',
-                      ),
-                      _buildMetricBox(
-                        'SCORE DE SAÚDE ORGÂNICA',
-                        '$healthScore/100',
-                        'Compatibilidade com o algoritmo do ${provider.plataforma}',
-                      ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isMobile = constraints.maxWidth < 600;
+                      final cardWidth = isMobile ? double.infinity : (constraints.maxWidth > 900 ? (constraints.maxWidth - 32) / 3 : (constraints.maxWidth - 16) / 2);
+
+                      return Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          SizedBox(
+                            width: cardWidth,
+                            child: _buildMetricBox(
+                              'TAXA DE ENGAJAMENTO DINÂMICA',
+                              '${engRate.toStringAsFixed(1)}%',
+                              'Calculada diretamente com base na sua densidade de interação e trends ativas',
+                              isHighlight: true,
+                            ),
+                          ),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _buildMetricBox(
+                              'ALCANCE POTENCIAL ESTIMADO',
+                              totalReach >= 1000 ? '${(totalReach / 1000).toStringAsFixed(1)}K' : '$totalReach',
+                              'Projeção de visualizações orgânicas para o nicho "${provider.nicho}"',
+                            ),
+                          ),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _buildMetricBox(
+                              'SCORE DE SAÚDE ORGÂNICA',
+                              '$healthScore/100',
+                              'Compatibilidade com o algoritmo do ${provider.plataforma}',
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 24),
                   Container(
@@ -114,12 +131,13 @@ class AnaliseIaScreen extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 
   Widget _buildMetricBox(String title, String value, String desc, {bool isHighlight = false}) {
     return Container(
-      width: 260,
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isHighlight ? const Color(0xFF201335) : const Color(0xFF090A10),

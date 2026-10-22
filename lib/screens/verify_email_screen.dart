@@ -16,7 +16,7 @@ class VerifyEmailScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -86,14 +86,14 @@ class VerifyEmailScreen extends StatelessWidget {
                   fontSize: 13,
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () {
                   // Lógica de verificação do código
                 },
                 child: const Text('Confirmar'),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
             ],
           ),
         ),
