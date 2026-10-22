@@ -62,8 +62,10 @@ class AnaliseIaScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      final isMobile = constraints.maxWidth < 600;
-                      final cardWidth = isMobile ? double.infinity : (constraints.maxWidth > 900 ? (constraints.maxWidth - 32) / 3 : (constraints.maxWidth - 16) / 2);
+                      final isMobile = constraints.maxWidth < 650;
+                      final cardWidth = isMobile
+                          ? double.infinity
+                          : (constraints.maxWidth > 960 ? (constraints.maxWidth - 32) / 3 : (constraints.maxWidth - 16) / 2);
 
                       return Wrap(
                         spacing: 16,
@@ -152,7 +154,11 @@ class AnaliseIaScreen extends StatelessWidget {
         children: [
           Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isHighlight ? const Color(0xFFA855F7) : Colors.grey)),
           const SizedBox(height: 10),
-          Text(value, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(value, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+          ),
           const SizedBox(height: 6),
           Text(desc, style: const TextStyle(color: Colors.grey, fontSize: 11, height: 1.3)),
         ],

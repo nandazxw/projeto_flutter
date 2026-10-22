@@ -315,7 +315,7 @@ class _BotTendenciasScreenState extends State<BotTendenciasScreen> {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isNarrow = constraints.maxWidth < 500;
+          final isNarrow = constraints.maxWidth < 560;
 
           final content = Column(
             crossAxisAlignment: CrossAxisAlignment.start,

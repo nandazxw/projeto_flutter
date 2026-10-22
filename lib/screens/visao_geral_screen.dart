@@ -81,8 +81,10 @@ class VisaoGeralScreen extends StatelessWidget {
               // KPI Cards
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final isMobile = constraints.maxWidth < 600;
-                  final cardWidth = isMobile ? double.infinity : (constraints.maxWidth > 900 ? (constraints.maxWidth - 32) / 3 : (constraints.maxWidth - 16) / 2);
+                  final isMobile = constraints.maxWidth < 650;
+                  final cardWidth = isMobile
+                      ? double.infinity
+                      : (constraints.maxWidth > 960 ? (constraints.maxWidth - 32) / 3 : (constraints.maxWidth - 16) / 2);
 
                   return Wrap(
                     spacing: 16,
@@ -204,7 +206,16 @@ class VisaoGeralScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(value, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

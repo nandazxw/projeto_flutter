@@ -63,8 +63,10 @@ class _AutomacaoTrafegoScreenState extends State<AutomacaoTrafegoScreen> {
                     const SizedBox(height: 20),
                     LayoutBuilder(
                       builder: (context, constraints) {
-                        final isMobile = constraints.maxWidth < 600;
-                        final cardWidth = isMobile ? double.infinity : (constraints.maxWidth - 32) / 3;
+                        final isMobile = constraints.maxWidth < 650;
+                        final cardWidth = isMobile
+                            ? double.infinity
+                            : (constraints.maxWidth > 900 ? (constraints.maxWidth - 32) / 3 : (constraints.maxWidth - 16) / 2);
 
                         return Wrap(
                           spacing: 16,
@@ -204,7 +206,11 @@ class _AutomacaoTrafegoScreenState extends State<AutomacaoTrafegoScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(time, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(time, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            ),
             const SizedBox(height: 4),
             Text(tag, style: const TextStyle(color: Color(0xFF10B981), fontSize: 12, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),

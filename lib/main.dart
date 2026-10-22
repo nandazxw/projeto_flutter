@@ -100,9 +100,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               children: [
                 Icon(Icons.auto_awesome, color: Color(0xFFA855F7), size: 28),
                 SizedBox(width: 10),
-                Text(
-                  'ViralMind',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                Expanded(
+                  child: Text(
+                    'ViralMind',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),

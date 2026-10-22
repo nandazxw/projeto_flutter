@@ -103,18 +103,21 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: const Color(0xFFA855F7).withValues(alpha: 0.3)),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              SizedBox(
+                              const SizedBox(
                                 width: 14,
                                 height: 14,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFA855F7)),
                               ),
-                              SizedBox(width: 10),
-                              Text(
-                                'Estruturando roteiro e estratégia viral...',
-                                style: TextStyle(color: Colors.white70, fontSize: 12, fontStyle: FontStyle.italic),
+                              const SizedBox(width: 10),
+                              Flexible(
+                                child: Text(
+                                  'Estruturando roteiro e estratégia viral...',
+                                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontStyle: FontStyle.italic),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),
