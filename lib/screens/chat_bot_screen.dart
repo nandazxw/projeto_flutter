@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../widgets/app_markdown_view.dart';
 
 class ChatBotScreen extends StatefulWidget {
   const ChatBotScreen({super.key});
@@ -261,65 +261,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     )
-                  : MarkdownBody(
-                      data: msg.text,
-                      selectable: true,
-                      styleSheet: MarkdownStyleSheet(
-                        p: const TextStyle(
-                          fontSize: 14.5,
-                          height: 1.6,
-                          color: Color(0xFFE2E8F0),
-                          letterSpacing: 0.2,
-                        ),
-                        strong: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        h1: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFA855F7),
-                          height: 1.5,
-                        ),
-                        h2: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFA855F7),
-                          height: 1.5,
-                        ),
-                        h3: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFEC4899),
-                          height: 1.4,
-                        ),
-                        listBullet: const TextStyle(
-                          color: Color(0xFFA855F7),
-                          fontSize: 14,
-                        ),
-                        code: TextStyle(
-                          backgroundColor: const Color(0xFF090A10),
-                          color: const Color(0xFF38BDF8),
-                          fontSize: 13,
-                          fontFamily: 'monospace',
-                        ),
-                        codeblockDecoration: BoxDecoration(
-                          color: const Color(0xFF090A10),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white12),
-                        ),
-                        blockquote: const TextStyle(
-                          color: Colors.white70,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        blockquoteDecoration: BoxDecoration(
-                          border: const Border(
-                            left: BorderSide(color: Color(0xFFA855F7), width: 3),
-                          ),
-                          color: const Color(0xFF090A10).withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ),
+                  : AppMarkdownView(data: msg.text),
             ),
           ),
 
