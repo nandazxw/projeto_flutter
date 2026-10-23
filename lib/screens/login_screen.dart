@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../main.dart';
 import '../providers/app_provider.dart';
-import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -116,13 +115,19 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (error) {
       if (!mounted) return;
-
-      // Se o usuário estiver em ambiente de emulador sem Play Services ou desktop de desenvolvimento,
-      // oferecemos um diálogo para prosseguir com e-mail Google simulado caso o fluxo nativo não abra
       final errorMessage = error.toString();
-      if (errorMessage.contains('user') || errorMessage.contains('cancel') || errorMessage.contains('aborted')) {
-        // Usuário simplesmente fechou a janela do Google
+      if (errorMessage.contains('user') || errorMessage.contains('cancel') || errorMessage.contains('aborted') || errorMessage.contains('canceled')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login com Google cancelado.')),
+        );
       } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Aviso Google: ${errorMessage.replaceAll('Exception: ', '')}'),
+            backgroundColor: Colors.orangeAccent,
+            duration: const Duration(seconds: 4),
+          ),
+        );
         _mostrarOpcaoGoogleAlternativa();
       }
     } finally {
@@ -259,21 +264,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-                      );
-                    },
-                    child: const Text(
-                      'Esqueci minha senha',
-                      style: TextStyle(color: AppColors.primaryPurple, fontSize: 12),
-                    ),
-                  ),
-                ),
+
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _isLoading || _isGoogleLoading ? null : _handleLogin,
