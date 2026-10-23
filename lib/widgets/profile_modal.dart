@@ -173,8 +173,11 @@ class _ProfileModalState extends State<ProfileModal> {
                     'Sair da Conta',
                     style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold, fontSize: 14),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
+                    final provider = Provider.of<AppProvider>(context, listen: false);
                     Navigator.pop(context); // Fecha o modal
+                    await provider.logout();
+                    if (!context.mounted) return;
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (_) => const WelcomeScreen()),

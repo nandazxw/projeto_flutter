@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   bool _isGoogleLoading = false;
+  static const String _googleClientId = '240358657816-eh64ad30n05mpv56ugtosff2rm1mlqko.apps.googleusercontent.com';
   static bool _googleInitialized = false;
 
   @override
@@ -31,7 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _initGoogleSignIn() async {
     if (!_googleInitialized) {
       try {
-        await GoogleSignIn.instance.initialize();
+        await GoogleSignIn.instance.initialize(
+          clientId: _googleClientId,
+          serverClientId: _googleClientId,
+        );
         _googleInitialized = true;
       } catch (_) {
         // Pode ignorar se já foi inicializado

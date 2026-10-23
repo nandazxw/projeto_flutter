@@ -200,9 +200,23 @@ class AppProvider extends ChangeNotifier {
   // AUTENTICAÇÃO
   // ==========================================
 
+  void _resetChatState() {
+    _messages.clear();
+    _messages.add(ChatMessage(
+      text: 'Olá! Sou o teu assistente de alavancagem orgânica do ViralMind. Digite qualquer ideia, nicho ou peça um roteiro para alavancarmos seu conteúdo com IA!',
+      isUser: false,
+      timestamp: DateTime.now(),
+    ));
+    _scripts.clear();
+    _roteirosConcluidos = 0;
+    _mensagensTrocadas = 0;
+    _totalCaracteresDigitados = 0;
+  }
+
   Future<void> login(String email, String password) async {
     final res = await ApiService.login(email, password);
     _isLoggedIn = true;
+    _resetChatState();
     if (res['user'] != null) {
       final user = res['user'];
       _userName = user['name'] ?? _userName;
@@ -211,12 +225,13 @@ class AppProvider extends ChangeNotifier {
     }
     notifyListeners();
     analisarTendenciasWeb(_nicho);
-    carregarHistoricoChat();
+    await carregarHistoricoChat();
   }
 
   Future<void> loginWithGoogle({required String email, String? name, String? idToken}) async {
     final res = await ApiService.googleLogin(email: email, name: name, idToken: idToken);
     _isLoggedIn = true;
+    _resetChatState();
     if (res['user'] != null) {
       final user = res['user'];
       _userName = user['name'] ?? (name ?? _userName);
@@ -225,7 +240,7 @@ class AppProvider extends ChangeNotifier {
     }
     notifyListeners();
     analisarTendenciasWeb(_nicho);
-    carregarHistoricoChat();
+    await carregarHistoricoChat();
   }
 
   Future<void> register(String name, String email, String password) async {
@@ -236,16 +251,7 @@ class AppProvider extends ChangeNotifier {
   Future<void> logout() async {
     await ApiService.logout();
     _isLoggedIn = false;
-    _messages.clear();
-    _messages.add(ChatMessage(
-      text: 'Olá! Sou o teu assistente de alavancagem orgânica do ViralMind. Digite qualquer ideia ou nicho para começar!',
-      isUser: false,
-      timestamp: DateTime.now(),
-    ));
-    _scripts.clear();
-    _roteirosConcluidos = 0;
-    _mensagensTrocadas = 0;
-    _totalCaracteresDigitados = 0;
+    _resetChatState();
     notifyListeners();
   }
 
@@ -345,8 +351,20 @@ class AppProvider extends ChangeNotifier {
         _mensagensTrocadas = _messages.where((m) => m.isUser).length;
         _roteirosConcluidos = _scripts.where((s) => s.status == 'Concluído').length;
         notifyListeners();
+      } else {
+        // Para novas contas ou histórico limpo, garante o estado inicial sem resquícios
+        _resetChatState();
+        notifyListeners();
       }
     } catch (_) {}
+  }
+
+  Future<void> limparHistoricoChat() async {
+    try {
+      await ApiService.clearChatHistory();
+    } catch (_) {}
+    _resetChatState();
+    notifyListeners();
   }
 
   Future<void> sendMessage(String text) async {

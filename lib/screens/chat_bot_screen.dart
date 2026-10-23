@@ -59,14 +59,56 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              RichText(
-                text: const TextSpan(
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-                  children: [
-                    TextSpan(text: 'Assistente de '),
-                    TextSpan(text: 'Alavancagem Orgânica', style: TextStyle(color: Color(0xFFEC4899))),
-                  ],
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: RichText(
+                      text: const TextSpan(
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                        children: [
+                          TextSpan(text: 'Assistente de '),
+                          TextSpan(text: 'Alavancagem Orgânica', style: TextStyle(color: Color(0xFFEC4899))),
+                        ],
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Limpar conversa',
+                    icon: const Icon(Icons.delete_outline_rounded, color: Colors.white60, size: 22),
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          backgroundColor: const Color(0xFF181A2A),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: const Text('Limpar Conversa', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                          content: const Text(
+                            'Deseja apagar todo o histórico de mensagens deste chat?',
+                            style: TextStyle(color: Colors.white70, fontSize: 14),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFEF4444),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('Limpar', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        await provider.limparHistoricoChat();
+                      }
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
 
