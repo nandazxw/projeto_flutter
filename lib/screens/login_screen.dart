@@ -92,9 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isGoogleLoading = true);
 
     try {
+      // Tenta o fluxo nativo se o ambiente permitir
       await _initGoogleSignIn();
-
-      // Dispara a tela / fluxo oficial de autenticação do Google
       final GoogleSignInAccount account = await GoogleSignIn.instance.authenticate();
       final idToken = account.authentication.idToken;
 
@@ -121,13 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SnackBar(content: Text('Login com Google cancelado.')),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Aviso Google: ${errorMessage.replaceAll('Exception: ', '')}'),
-            backgroundColor: Colors.orangeAccent,
-            duration: const Duration(seconds: 4),
-          ),
-        );
+        // Sem Firebase / Google Services: abre o diálogo para autenticar diretamente com o Google/Backend
         _mostrarOpcaoGoogleAlternativa();
       }
     } finally {
@@ -136,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _mostrarOpcaoGoogleAlternativa() {
-    final emailTestController = TextEditingController(text: 'usuario.google@gmail.com');
+    final emailTestController = TextEditingController(text: 'mariafernandinha0001@gmail.com');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
