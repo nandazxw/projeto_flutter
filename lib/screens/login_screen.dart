@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   bool _isGoogleLoading = false;
-  static const String _googleClientId = '240358657816-eh64ad30n05mpv56ugtosff2rm1mlqko.apps.googleusercontent.com';
+  static const String _googleWebClientId = '240358657816-eh64ad30n05mpv56ugtosff2rm1mlqko.apps.googleusercontent.com';
   static bool _googleInitialized = false;
 
   @override
@@ -32,12 +33,14 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_googleInitialized) {
       try {
         await GoogleSignIn.instance.initialize(
-          clientId: _googleClientId,
-          serverClientId: _googleClientId,
+          // No Android, clientId NÃO deve ser enviado (ele usa o SHA-1 + package name).
+          // clientId só é enviado na Web.
+          clientId: kIsWeb ? _googleWebClientId : null,
+          serverClientId: _googleWebClientId,
         );
         _googleInitialized = true;
-      } catch (_) {
-        // Pode ignorar se já foi inicializado
+      } catch (e) {
+        debugPrint('[GoogleSignIn] Erro na inicialização: $e');
       }
     }
   }
@@ -118,48 +121,48 @@ class _LoginScreenState extends State<LoginScreen> {
       debugPrint('[GoogleSignIn] Erro capturado: $error');
       debugPrint('[GoogleSignIn] Stack: $stack');
       if (!mounted) return;
-      final errorMessage = error.toString().toLowerCase();
-
-      // Verifica se foi realmente o usuário que fechou o popup (sem erros técnicos)
-      final foiCanceladoPeloUsuario = (errorMessage.contains('canceled') || errorMessage.contains('aborted')) &&
-          !errorMessage.contains('api') &&
-          !errorMessage.contains('10') &&
-          !errorMessage.contains('12500') &&
-          !errorMessage.contains('platformexception') &&
-          !errorMessage.contains('developer');
-
-      if (foiCanceladoPeloUsuario) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login com Google cancelado.')),
-        );
-      } else {
-        // Exibe o erro real ou abre diálogo alternativo caso falte configuração nativa (SHA-1 / google-services)
-        _mostrarOpcaoGoogleAlternativa(erroDetalhado: error.toString());
-      }
+      // Exibe diálogo com o erro real e opção imediata para conectar ao backend
+      _mostrarOpcaoGoogleAlternativa(erroDetalhado: error.toString());
     } finally {
       if (mounted) setState(() => _isGoogleLoading = false);
     }
   }
 
   void _mostrarOpcaoGoogleAlternativa({String? erroDetalhado}) {
-    final emailTestController = TextEditingController(text: 'mariafernandinha0001@gmail.com');
+    final emailTestController = TextEditingController(text: 'seu.email@gmail.com');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF11131F),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
-            Icon(Icons.g_mobiledata, color: Colors.white, size: 28),
+            Icon(Icons.g_mobiledata, color: Color(0xFFA855F7), size: 30),
             SizedBox(width: 8),
-            Text('Login com Google', style: TextStyle(color: Colors.white, fontSize: 18)),
+            Text('Autenticar com Backend', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (erroDetalhado != null) ...[
+              Container(
+                padding: const EdgeInsets.all(8),
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+                ),
+                child: Text(
+                  'Google SDK: $erroDetalhado\n(As permissões do Google Cloud levam alguns minutos para sincronizar no APK)',
+                  style: const TextStyle(color: Colors.white70, fontSize: 11),
+                ),
+              ),
+            ],
             const Text(
-              'Confirme o e-mail Google para autenticar no backend ViralMind:',
+              'Enviar requisição diretamente para o backend Railway:',
               style: TextStyle(color: Colors.white70, fontSize: 13),
             ),
             const SizedBox(height: 12),
@@ -182,22 +185,35 @@ class _LoginScreenState extends State<LoginScreen> {
             child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA855F7)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFA855F7),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
             onPressed: () async {
               final email = emailTestController.text.trim();
               if (email.isNotEmpty) {
                 Navigator.pop(ctx);
-                final provider = Provider.of<AppProvider>(context, listen: false);
-                await provider.loginWithGoogle(email: email, name: email.split('@')[0]);
-                if (!mounted) return;
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-                  (route) => false,
-                );
+                setState(() => _isGoogleLoading = true);
+                try {
+                  final provider = Provider.of<AppProvider>(context, listen: false);
+                  await provider.loginWithGoogle(email: email, name: email.split('@')[0]);
+                  if (!mounted) return;
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+                    (route) => false,
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro no backend: $e'), backgroundColor: Colors.redAccent),
+                  );
+                } finally {
+                  if (mounted) setState(() => _isGoogleLoading = false);
+                }
               }
             },
-            child: const Text('Conectar Conta', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Enviar ao Backend', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
