@@ -92,10 +92,12 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isGoogleLoading = true);
 
     try {
-      // Tenta o fluxo nativo se o ambiente permitir
+      debugPrint('[GoogleSignIn] Iniciando login...');
       await _initGoogleSignIn();
       final GoogleSignInAccount account = await GoogleSignIn.instance.authenticate();
       final idToken = account.authentication.idToken;
+
+      debugPrint('[GoogleSignIn] Conta autenticada: ${account.email}');
 
       if (!mounted) return;
       final provider = Provider.of<AppProvider>(context, listen: false);
@@ -112,23 +114,34 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
         (route) => false,
       );
-    } catch (error) {
+    } catch (error, stack) {
+      debugPrint('[GoogleSignIn] Erro capturado: $error');
+      debugPrint('[GoogleSignIn] Stack: $stack');
       if (!mounted) return;
-      final errorMessage = error.toString();
-      if (errorMessage.contains('user') || errorMessage.contains('cancel') || errorMessage.contains('aborted') || errorMessage.contains('canceled')) {
+      final errorMessage = error.toString().toLowerCase();
+
+      // Verifica se foi realmente o usuário que fechou o popup (sem erros técnicos)
+      final foiCanceladoPeloUsuario = (errorMessage.contains('canceled') || errorMessage.contains('aborted')) &&
+          !errorMessage.contains('api') &&
+          !errorMessage.contains('10') &&
+          !errorMessage.contains('12500') &&
+          !errorMessage.contains('platformexception') &&
+          !errorMessage.contains('developer');
+
+      if (foiCanceladoPeloUsuario) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login com Google cancelado.')),
         );
       } else {
-        // Sem Firebase / Google Services: abre o diálogo para autenticar diretamente com o Google/Backend
-        _mostrarOpcaoGoogleAlternativa();
+        // Exibe o erro real ou abre diálogo alternativo caso falte configuração nativa (SHA-1 / google-services)
+        _mostrarOpcaoGoogleAlternativa(erroDetalhado: error.toString());
       }
     } finally {
       if (mounted) setState(() => _isGoogleLoading = false);
     }
   }
 
-  void _mostrarOpcaoGoogleAlternativa() {
+  void _mostrarOpcaoGoogleAlternativa({String? erroDetalhado}) {
     final emailTestController = TextEditingController(text: 'mariafernandinha0001@gmail.com');
     showDialog(
       context: context,
