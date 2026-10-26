@@ -129,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _mostrarOpcaoGoogleAlternativa({String? erroDetalhado}) {
-    final emailTestController = TextEditingController(text: 'seu.email@gmail.com');
+    final emailTestController = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -156,13 +156,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
                 ),
                 child: Text(
-                  'Google SDK: $erroDetalhado\n(As permissões do Google Cloud levam alguns minutos para sincronizar no APK)',
+                  'Google SDK: $erroDetalhado',
                   style: const TextStyle(color: Colors.white70, fontSize: 11),
                 ),
               ),
             ],
             const Text(
-              'Enviar requisição diretamente para o backend Railway:',
+              'Digite seu e-mail Google para autenticar no backend:',
               style: TextStyle(color: Colors.white70, fontSize: 13),
             ),
             const SizedBox(height: 12),
@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFF090A10),
-                hintText: 'seu.email@gmail.com',
+                hintText: 'exemplo@gmail.com',
                 prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFFA855F7), size: 18),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
               ),
@@ -191,26 +191,30 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             onPressed: () async {
               final email = emailTestController.text.trim();
-              if (email.isNotEmpty) {
-                Navigator.pop(ctx);
-                setState(() => _isGoogleLoading = true);
-                try {
-                  final provider = Provider.of<AppProvider>(context, listen: false);
-                  await provider.loginWithGoogle(email: email, name: email.split('@')[0]);
-                  if (!mounted) return;
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-                    (route) => false,
-                  );
-                } catch (e) {
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Erro no backend: $e'), backgroundColor: Colors.redAccent),
-                  );
-                } finally {
-                  if (mounted) setState(() => _isGoogleLoading = false);
-                }
+              if (email.isEmpty || !email.contains('@')) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Por favor, informe um e-mail válido.')),
+                );
+                return;
+              }
+              Navigator.pop(ctx);
+              setState(() => _isGoogleLoading = true);
+              try {
+                final provider = Provider.of<AppProvider>(context, listen: false);
+                await provider.loginWithGoogle(email: email, name: email.split('@')[0]);
+                if (!mounted) return;
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+                  (route) => false,
+                );
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Erro no backend: $e'), backgroundColor: Colors.redAccent),
+                );
+              } finally {
+                if (mounted) setState(() => _isGoogleLoading = false);
               }
             },
             child: const Text('Enviar ao Backend', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
